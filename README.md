@@ -86,7 +86,7 @@ The application preprocesses historical OHLCV (Open, High, Low, Close, Volume) d
 - **UI and Functionality Improvements:** Enhance user interface capabilities and provide more in-depth financial insights for queried stocks.
 - **Scalability:** Extend the application's usability to cover a wider range of stocks beyond the S&P 500 index.
 
-##NOTE
+## NOTE
   This repository is a modified version of an original project that performed Stock RAG LLM analysis for Nifty 50 companies. The modifications include:
 
 - Fetching S&P 500 tickers live from Wikipedia instead of using a static list of NIFTY50 Companies.
