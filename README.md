@@ -1,197 +1,109 @@
-# ChatGPT Trading Decision and Insights App
+# S&P 500 Trading Decision and Insights App
 
-This is an AI app to get **real-time** trading decision for Nifty 50 stocks along with various financial aspects of that stock . The project exposes an HTTP REST endpoint to answer user queries about what the **price-action decision** for a stock for that day will be or what stocks have the particular price-action-decision for the day and also explain why the decision is made , sighting various financial aspects of the stock . It uses Pathway’s [LLM App features](https://github.com/pathwaycom/llm-app) to build real-time LLM(Large Language Model)-enabled data pipeline in Python and  leverages OpenAI API [Embeddings](https://platform.openai.com/docs/api-reference/embeddings) and [Chat Completion](https://platform.openai.com/docs/api-reference/completions) endpoints to generate AI assistant responses.
-
-This trading prediction application , on its core is built on **machine learning classifiers** to make buy, sell, or hold predictions based on technical indicators calculated from historical OHLCV (Open, High, Low, Close, Volume) data of financial assets. The application preprocesses the data, engineers features, trains multiple classifiers, and makes predictions on new data.
-
-The **prediction model** runs everytime the app is called and yfinance library helps in getting the daily stock prices . Then the predcited decision dataframe for each of nifty 50 stocks are combined together and compliled into a csv file which in-turn is converted to Jsonlines where each line expects to have a `doc` object as in . Now we also have another jsonl file containing the information about each of the indicators and columns and their implicatons on the decision . This jsonl file is combined to the former jsonl file to give the final jsonl file , which acts as input for the embedding process. 
-
-- Input data in form of Jsonlines are used so as to improve the efficiency of the whole process.
+This project is an AI-powered application designed to provide real-time trading decisions and insights for S&P 500 stocks. It leverages Pathway’s LLM (Large Language Model) App features to build a robust data pipeline in Python, integrating OpenAI's Embeddings and Chat Completion APIs for generating AI assistant responses.
 
 ## Features
 
-- Provides stock decision and insights powered by a model with very good accuracy 
-- Offers user-friendly UI with [Streamlit](https://streamlit.io/).
-- Filters and presents decisions and insights on stocks based on user queries 
-- Data and code reusability . 
-- Extend data sources: Using Pathway's built-in connectors for JSONLines, CSV, Kafka, Redpanda, Debezium, streaming APIs, and more.
+- **Real-time Stock Decisions**: Offers daily buy, sell, or hold predictions for S&P 500 stocks based on machine learning classifiers.
+- **Interactive UI**: Utilizes Streamlit for a user-friendly interface to interact with the app and view stock insights.
+- **Data Reusability**: Implements data and code reusability, supporting various data formats and sources including JSONLines and CSV.
+- **Extendable Data Sources**: Integrates seamlessly with external APIs, databases (e.g., PostgreSQL, MySQL), and streaming platforms (e.g., Kafka, Redpanda, Debezium).
 
-## Further Improvements
+## Core Functionality
 
-There are more things you can achieve and here are upcoming features:
+The application preprocesses historical OHLCV (Open, High, Low, Close, Volume) data for S&P 500 stocks, computes technical indicators, trains multiple classifiers, and generates predictions. Predictions are compiled into a CSV file and further processed into JSONLines format, incorporating detailed information about each indicator's impact on the trading decision.
 
-- Incorporate additional data from external APIs, along with various files (such as Jsonlines, PDF, Doc, HTML, or Text format), databases like PostgreSQL or MySQL, and stream data from platforms like Kafka, Redpanda, or Debedizum.
-- Merge data from these sources instantly.
-- Convert any data to jsonlines.
-- Beyond making data accessible UI, the LLM App allows you to relay processed data to other downstream connectors, such as BI and analytics tools. For instance, set it up to **receive alerts** upon changing stock prices for stocks of choice
-- More in-depth over-view of the financial aspects of the queried stocks.
-- Future prices prediction models combined with RAG can ensure to an efficient improvement.
-- Can be made usable for many more stocks other than the nifty 50 stocks
+## Usage
 
-  
+### Installation
 
-## Code sample
+1. **Clone the Repository:**
 
-It requires only few lines of code to build a real-time AI-enabled data pipeline:
+   ```bash
+   git clone https://github.com/YourUsername/SP500-Trading-App.git
+   cd SP500-Trading-App
+   ```
 
-```python
-# Given a user question as a query 
-    query, response_writer = pw.io.http.rest_connector(
-        host=host,
-        port=port,
-        schema=QueryInputSchema,
-        autocommit_duration_ms=50,
-    )
+2. **Set Environment Variables:**
 
-    # Real-time data coming from external data sources such as jsonlines file
-    stock_data = pw.io.jsonlines.read(
-        "./examples/data/stock_predict_total.jsonl",
-        schema=DataInputSchema,
-        mode="streaming"
-    )
+   Create a `.env` file in the project root directory with your configuration:
 
-    # Compute embeddings for each document using the OpenAI Embeddings API
-    embedded_data = embeddings(context=stock_data, data_to_embed=stock_data.doc)
+   ```bash
+   OPENAI_API_TOKEN=your_openai_api_key
+   HOST=0.0.0.0
+   PORT=8080
+   EMBEDDER_LOCATOR=text-embedding-ada-002
+   EMBEDDING_DIMENSION=1536
+   MODEL_LOCATOR=gpt-3.5-turbo
+   MAX_TOKENS=200
+   TEMPERATURE=0.0
+   ```
 
-    # Construct an index on the generated embeddings in real-time
-    index = index_embeddings(embedded_data)
+3. **Install Dependencies:**
 
-    # Generate embeddings for the query from the OpenAI Embeddings API
-    embedded_query = embeddings(context=query, data_to_embed=pw.this.query)
+   Install the required Python packages:
 
-    # Build prompt using indexed data
-    responses = prompt(index, embedded_query, pw.this.query)
+   ```bash
+   pip install --upgrade -r requirements.txt
+   ```
 
-    # Feed the prompt to ChatGPT and obtain the generated answer.
-    response_writer(responses)
+4. **Run the Application:**
 
-    # Run the pipeline
-    pw.run()
-```
+   Start the application:
 
-## Use case
+   ```bash
+   python main.py
+   ```
 
-[Open AI GPT](https://openai.com/gpt-4) excels at answering questions, but only on topics it remembers from its training data. If you want GPT to answer questions about unfamiliar topics such as:
+   Ensure the application is running successfully by accessing `http://localhost:8080` in your web browser.
 
-- Recent events after Sep 2021.
-- Your non-public documents.
-- Information from past conversations.
-- Real-time data.
-- Including discount information.
+### Data Processing Workflow
 
-The model might not answer such queries properly. Because it is not aware of the context or historical data or it needs additional details. In this case, you can use LLM App efficiently to give context to this search or answer process.  See how LLM App [works](https://github.com/pathwaycom/llm-app#how-it-works).
+1. **Data Preparation:**
 
-For example, a typical response you can get from the OpenAI [Chat Completion endpoint](https://platform.openai.com/docs/api-reference/chat) or [ChatGPT UI](https://chat.openai.com/) interface without context is:
+   - **Download S&P 500 Data:** Retrieves the latest S&P 500 company list from Wikipedia and adjusts ticker symbols for compatibility with Yahoo Finance.
+   - **Compute Indicators:** Calculates essential technical indicators (e.g., SMA, MACD, RSI) using historical stock data fetched via yfinance library.
 
-![chatgpt_screenshot1](/assets/chatgpt1.png)
+2. **Model Prediction:**
 
-![chatgpt_screenshot2](/assets/chatgp2.png)
+   - **Generate Predictions:** Applies machine learning classifiers to predict daily stock decisions (buy, sell, hold) based on computed indicators.
+   - **Compile Predictions:** Aggregates predictions into a comprehensive dataset for further analysis and reporting.
 
-As you can see, GPT responds only with suggestions on how determine decisions but it is not specific and does not provide exactly where or what decision explicitly and so on.
+3. **Output Generation:**
 
-To help the model, we give knowledge of stock data from a reliable data source (it can also be JSON document, or data stream in Kafka) to get a more accurate answer.  There is a jsonl file with the following columns of data on the daily ohlcv data and indicators data and finally preiction data for each of the 50 stocks of nifty index for the last 10 days along with the information about each indicator and their influencce on the decision . 
+   - **Export to CSV:** Saves the aggregated predictions into a CSV file (`nifty_50_predictions.csv`).
+   - **Convert to JSONLines:** Transforms the CSV file into a structured JSONLines format (`stock_predict_total.jsonl`), incorporating detailed indicator information.
 
-After we give this knowledge to GPT through the jsonl file, look how it replies:
+4. **Integration with LLM App:**
 
-![sample_run](/assets/sample_run.png)
+   - **Embedding Process:** Utilizes OpenAI's Embeddings API to embed the JSONLines data, enhancing data retrieval and analysis capabilities.
+   - **Combine Data:** Integrates the embedded data with additional indicator information into a consolidated JSONLines file (`stock_predict_total.jsonl`).
 
- The cool part is, the app is always aware of changes in the daily prices . If you just open the app for the day , the LLM app does magic and automatically updates the AI model's response for the day.
+### Future Enhancements
 
-## How the project works
+- **Expandable Data Sources:** Incorporate additional external APIs and data streams for broader market coverage.
+- **Predictive Modeling:** Integrate future price prediction models and Risk Assessment & Growth can ensure more efficient results.
+- **UI and Functionality Improvements:** Enhance user interface capabilities and provide more in-depth financial insights for queried stocks.
+- **Scalability:** Extend the application's usability to cover a wider range of stocks beyond the S&P 500 index.
 
-The sample project does the following procedures to achieve the above output:
+##NOTE
+  This repository is a modified version of an original project that performed Stock RAG LLM analysis for Nifty 50 companies. The modifications include:
 
-1. Prepare search data:
-    1. Generate: When the app runs , the [prediction model](/examples/predictionmodel/stock_decision_prediction.py) runs and computes stock decisions for the day and compiles all data including the indicators explanation jsonl file into one jsonl file ready to be given as input to the embedding process
-    2. Chunk: Documents are split into short, mostly self-contained sections to be embedded.
-    3. Embed: Each section is [embedded](https://platform.openai.com/docs/guides/embeddings) with the OpenAI API and retrieve the embedded result.
-    4. Indexing: Constructs an index on the generated embeddings.
-2. Search (once per query)
-    1. Given a user question, generate an embedding for the query from the OpenAI API.
-    2. Using the embeddings, retrieve the vector index by relevance to the query
-3. Ask (once per query)
-    1. Insert the question and the most relevant sections into a message to GPT
-    2. Return GPT's answer
+- Fetching S&P 500 tickers live from Wikipedia instead of using a static list of NIFTY50 Companies.
+- Minor UI changes to improve user experience.
 
-## How to run the project
+## Original Project
 
-Example only supports Unix-like systems (such as Linux, macOS, BSD). If you are a Windows user, we highly recommend leveraging Windows Subsystem for Linux (WSL) or Dockerize the app to run as a container.
+The original project can be found at [Original Repository Link](https://github.com/CodeAceKing382/Stocks-Insight-App). It was designed to analyze Nifty 50 companies.
 
-### Run with Docker
+## Acknowledgments
 
-1. [Set environment variables](#step-2-set-environment-variables)
-2. From the project root folder, open your terminal and run `docker compose up`.
-3. Navigate to `localhost:8501` on your browser when docker installion is successful.
+This project is based on the original work found at [Original Repository Link](https://github.com/CodeAceKing382/Stocks-Insight-App). Special thanks to the original authors for their work.
 
-### Prerequisites
+### Contributing
 
-1. Make sure that [Python](https://www.python.org/downloads/) 3.10 or above installed on your machine.
-2. Download and Install [Pip](https://pip.pypa.io/en/stable/installation/) to manage project packages.
-3. Create an [OpenAI](https://openai.com/) account and generate a new API Key: To access the OpenAI API, you will need to create an API Key. You can do this by logging into the [OpenAI website](https://openai.com/product) and navigating to the API Key management page.
+Contributions to enhance and expand the functionality of the application are welcome. Please fork the repository, make your changes, and submit a pull request.
 
-Then, follow the easy steps to install and get started using the sample app.
+### License
 
-### Step 1: Clone the repository
-
-This is done with the `git clone` command followed by the URL of the repository:
-
-```bash
-git clone https://github.com/CodeAceKing382/Stocks-Insight-App
-```
-
-Next,  navigate to the project folder:
-
-```bash
-cd Stocks-Insight-App
-```
-
-### Step 2: Set environment variables
-
-Create `.env` file in the root directory of the project, copy and paste the below config, and replace the `{OPENAI_API_KEY}` configuration value with your key. 
-
-```bash
-OPENAI_API_TOKEN={OPENAI_API_KEY}
-HOST=0.0.0.0
-PORT=8080
-EMBEDDER_LOCATOR=text-embedding-ada-002
-EMBEDDING_DIMENSION=1536
-MODEL_LOCATOR=gpt-3.5-turbo
-MAX_TOKENS=200
-TEMPERATURE=0.0
-```
-
-### Step 3: Install the app dependencies
-
-Install the required packages:
-
-```bash
-pip install --upgrade -r requirements.txt
-```
-### Step 4 (Optional): Create a new virtual environment
-
-Create a new virtual environment in the same folder and activate that environment:
-
-```bash
-python -m venv pw-env && source pw-env/bin/activate
-```
-
-### Step 5: Run and start to use it
-
-You start the application by navigating to `llm_app` folder and running `main.py`:
-
-```bash
-python main.py
-```
-
-When the application runs successfully, you should see output something like this:
-
-![pathway_progress_dashboard](/assets/pathway_progress_dashboard.png)
-
-### Step 6: Run Streamlit UI for file upload
-
-You can run the UI separately by navigating to `cd examples/ui` and running Streamlit app
-`streamlit run app.py` command. It connects to the Discounts backend API automatically and you will see the UI frontend is running http://localhost:8501/ on a browser:
-
-  ![screenshot_ui_streamlit](/assets/streamlit_ui.png)
-
-
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
