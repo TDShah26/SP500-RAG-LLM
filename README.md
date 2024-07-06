@@ -92,10 +92,6 @@ The application preprocesses historical OHLCV (Open, High, Low, Close, Volume) d
 - Fetching S&P 500 tickers live from Wikipedia instead of using a static list of NIFTY50 Companies.
 - Minor UI changes to improve user experience.
 
-## Original Project
-
-The original project can be found at [Original Repository Link](https://github.com/CodeAceKing382/Stocks-Insight-App). It was designed to analyze Nifty 50 companies.
-
 ## Acknowledgments
 
 This project is based on the original work found at [Original Repository Link](https://github.com/CodeAceKing382/Stocks-Insight-App). Special thanks to the original authors for their work.
